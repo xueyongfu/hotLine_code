@@ -1,7 +1,6 @@
 
 import sys, os
 from pyltp import Segmentor, Postagger, Parser ,SementicRoleLabeller,NamedEntityRecognizer
-import numpy as np
 
 
 class nlpLtp:
