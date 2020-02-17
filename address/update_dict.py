@@ -62,10 +62,11 @@ def src_address():
 
 
 def save_new_address(streets, roads):
-    addrs = set(streets+roads)
     with open('address/dict_new.txt','a') as f:
-        for addr in addrs:
-            f.write(addr+'\n')
+        for street in set(streets):
+            f.write(street+' 99999 street'+'\n')
+        for road in set(roads):
+            f.write(road+' 99999 road'+'\n')
 
 
 def get_new_address(path):
