@@ -2,7 +2,7 @@ import requests
 import time
 import os
 
-_url = 'http://127.0.0.1' + ':8006'
+_url = 'http://127.0.0.1' + ':6060'
 _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
 
 def sent_data():
