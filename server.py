@@ -1,18 +1,25 @@
 import flask
 
 from pos_ner import get_pos_ner
+from address_format import addrFormat
 
 def process(data):
-    request_type = list(data.keys())[0]
-    sentence = data[request_type]
+    request_type = data.get('type')
+    id = data.get('orderId')
+    sentence = data.get('sentence')
+
     if request_type == 'pos_ner':
-        return get_pos_ner(sentence)
+        response = get_pos_ner(sentence)
     elif request_type == 'addr_format':
-        pass
+        town = data[request_type]['town']
+        response = addrFormat.addr_format(sentence, town)
     elif request_type == 'workOrder_filter':
-        pass
+        response = {}
     else:
-        return 'You have requested error request_type'
+        response = 'You have requested error request_type'
+
+    response['orderId'] = id
+    return response
 
 
 # 引入Flask类，Flask类实现了一个WSGI应用

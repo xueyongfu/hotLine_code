@@ -1,15 +1,16 @@
 import requests
 import re
-import collections
-import copy
+import os
 import json
 import jieba
 import jieba.posseg as posseg
 
 
 class addrFormat:
-    jieba.load_userdict('address/dict.txt')
-    jieba.load_userdict('address/dict_new.txt')
+    current_path = os.path.abspath(__file__)
+    father_path = os.path.dirname(current_path)
+    jieba.load_userdict(os.path.join(father_path,'address/dict.txt'))
+    jieba.load_userdict(os.path.join(father_path,'address/dict_new.txt'))
     
     @staticmethod
     def tokenize(address):
@@ -17,32 +18,33 @@ class addrFormat:
 
     @staticmethod
     def addr_format(src_address, town):
-        formated_addr = {'street':town,'village':'', 'road':'', 'crossroads':'', 'lane':'',
-                        'number':'','bridge':'','subway':'','detail_address':''}
         ws = posseg.lcut(src_address)
+        formated_addr = {'街道':town}
         roads = []
         for w in ws:
-            if w.flag == 'street':
-                formated_addr['street'] = w.word
-            elif w.flag == 'village':
-                formated_addr['village'] += w.word
+            if w.flag == 'village':
+                formated_addr['村'] += w.word
             elif w.flag == 'road':
                 roads.append(w.word)
             elif w.flag == 'bridge':
-                formated_addr['bridge'] += w.word
+                formated_addr['桥'] += w.word
             elif w.flag == 'subway':
-                formated_addr['subway'] += w.word
+                formated_addr['地铁站'] += w.word
 
         if len(roads) > 1:
-            formated_addr['crossroads'] = '|'.join(roads)
+            formated_addr['交叉路口'] = '|'.join(roads)
         elif len(roads) == 1:
-            formated_addr['road'] = roads[0]
+            formated_addr['路'] = roads[0]
 
         if re.search('\d{1,4}弄', src_address):
-            formated_addr['lane'] = re.search('\d{1,4}弄', src_address).group()
+            formated_addr['弄'] = re.search('\d{1,4}弄', src_address).group()
         if re.search('\d{1,5}号',src_address):
-            formated_addr['number'] = re.search('\d{1,4}号', src_address).group()
-        return formated_addr
+            formated_addr['号'] = re.search('\d{1,4}号', src_address).group()
+
+        _formated_addr = {}
+        _formated_addr['header'] = list(formated_addr.keys())
+        _formated_addr['address'] = list(formated_addr.values())
+        return _formated_addr
 
 
 def get_entity_and_coordinate(address):
@@ -94,5 +96,5 @@ def address_info(address):
 
 
 if __name__ == '__main__':
-    #   print(address_info('浦东新区宣桥镇南六公路399弄艺泰安邦小区'))
-    addrFormat.addr_format('浦东新区汇豪路71弄冠郡酒店','大场镇')
+    format_addr = addrFormat.addr_format('浦东新区汇豪路71弄冠郡酒店','大场镇')
+    print(format_addr)

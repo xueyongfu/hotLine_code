@@ -5,7 +5,7 @@ from pyltp import Segmentor, Postagger, Parser ,SementicRoleLabeller,NamedEntity
 
 class nlpLtp:
     
-    MODELDIR = '/home/xyf/models/ltp_model'
+    MODELDIR = '/home/xyf/models/chinese/ltp_model'
 
     #系统切词
     segmentor = Segmentor()
@@ -44,7 +44,19 @@ class nlpLtp:
         words = cls.segmentor.segment(sentence)
         postags = cls.postagger.postag(words)
         netags = cls.namedentityrecognizer.recognize(words, postags)
-        return netags
+
+        # symbol = {'Nh':'人名','Ni':'机构名','Ns':'地名'}
+        chi_netags = []
+        for s in netags:
+            if 'Nh' in s:
+                chi_netags.append('人名')
+            elif 'Ni' in s:
+                chi_netags.append('机构名')
+            elif 'Ns' in s:
+                chi_netags.append('地名')
+            else:
+                chi_netags.append('O')
+        return chi_netags
 
     @classmethod
     def sent_syntax(cls, sentence):
@@ -88,16 +100,15 @@ class nlpLtp:
                     words_list=words[arg.range.start:arg.range.end+1]
                     print(''.join(words_list))
 
-
 def get_pos_ner(sentence):
     tokens = nlpLtp.sent_segment(sentence)
     pos = nlpLtp.sent_pos(sentence)
     ner = nlpLtp.sent_ner(sentence)
-    return {'segment':tokens, 'pos':list(pos), 'ner':list(ner)}
+    return {'tokens':tokens, 'pos':list(pos), 'ner':list(ner)}
     
 
 if __name__ == '__main__':
-    print(get_pos_ner('今天天气好'))
+    print(get_pos_ner('中华人民共和国有限公司的今天天气好'))
 
 
 
