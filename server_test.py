@@ -2,10 +2,9 @@ import requests
 import time
 import os
 
-_url = 'http://127.0.0.1'
-# _url = 'http://1.202.226.229'
+# _url = 'http://127.0.0.1'
+_url = 'http://1.202.226.229'
 _headers = {'Content-Type': 'application/x-www-form-urlencoded'}
-
 
 def pos_ner_server():
     data = {'sentence':'中国今天是个好天气', 'orderId':'4434385932'}
