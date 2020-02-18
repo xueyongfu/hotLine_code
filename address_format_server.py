@@ -1,24 +1,13 @@
 import flask
 
-from pos_ner import get_pos_ner
 from address_format import addrFormat
 
 def process(data):
-    request_type = data.get('type')
-    id = data.get('orderId')
     sentence = data.get('sentence')
+    town = data.get('town')
+    response = addrFormat.addr_format(sentence, town)
 
-    if request_type == 'pos_ner':
-        response = get_pos_ner(sentence)
-    elif request_type == 'addr_format':
-        town = data[request_type]['town']
-        response = addrFormat.addr_format(sentence, town)
-    elif request_type == 'workOrder_filter':
-        response = {}
-    else:
-        response = 'You have requested error request_type'
-
-    response['orderId'] = id
+    response['orderId'] = data.get('orderId')
     return response
 
 
@@ -35,6 +24,7 @@ def main():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port='6060')
+    # app.run(host='127.0.0.1', port='6061',threaded=True)
+    app.run(host='172.16.0.119', port='6061',threaded=True)
 
 
