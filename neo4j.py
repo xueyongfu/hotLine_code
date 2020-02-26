@@ -9,8 +9,8 @@ from py2neo import Graph, Node, Relationship, cypher, Path, NodeSelector
 from address_format import address_info
 
 
-# graph = Graph("http://localhost:7474", username="neo4j", password="neo4j")
-graph = Graph("http://172.18.1.77:7474", username="neo4j", password="neo4j")
+graph = Graph("http://localhost:7474", username="neo4j", password="neo4j")
+# graph = Graph("http://172.18.1.77:7474", username="neo4j", password="neo4j")
 selector = NodeSelector(graph)
 
 
