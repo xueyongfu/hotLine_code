@@ -6,50 +6,47 @@ import jieba
 import jieba.posseg as posseg
 
 
-class addrFormat:
+def init_jieba():
     current_path = os.path.abspath(__file__)
     father_path = os.path.dirname(current_path)
     jieba.load_userdict(os.path.join(father_path,'address/dict.txt'))
     jieba.load_userdict(os.path.join(father_path,'address/dict_new.txt'))
-    
-    @staticmethod
-    def tokenize(address):
-        return jieba.lcut(address)
 
-    @staticmethod
-    def addr_format(src_address, town):
-        ws = posseg.lcut(src_address)
-        formated_addr = {'街道':town}
-        roads = []
-        for w in ws:
-            if w.flag == 'village':
-                formated_addr['村'] += w.word
-            elif w.flag == 'road':
-                roads.append(w.word)
-            elif w.flag == 'bridge':
-                formated_addr['桥'] += w.word
-            elif w.flag == 'subway':
-                formated_addr['地铁站'] += w.word
 
-        if len(roads) > 1:
-            formated_addr['交叉路口'] = '|'.join(roads)
-        elif len(roads) == 1:
-            formated_addr['路'] = roads[0]
+def addr_format(address, town):
+    # 加载自动以词典
+    init_jieba()
 
-        if re.search('\d{1,4}弄', src_address):
-            formated_addr['弄'] = re.search('\d{1,4}弄', src_address).group()
-        if re.search('\d{1,5}号',src_address):
-            formated_addr['号'] = re.search('\d{1,4}号', src_address).group()
+    ws = posseg.lcut(address)
+    formated_addr = {'街道':town}
+    roads = []
+    for w in ws:
+        # 多个村,只保留一个最后一个
+        if w.flag == 'village':
+            formated_addr['村'] = w.word
+        elif w.flag == 'road':
+            # 可能多条路,表示路口
+            roads.append(w.word)
 
-        _formated_addr = {}
-        _formated_addr['header'] = list(formated_addr.keys())
-        _formated_addr['address'] = list(formated_addr.values())
-        return _formated_addr
+    if len(roads) > 1:
+        formated_addr['交叉路口'] = '|'.join(roads)
+    elif len(roads) == 1:
+        formated_addr['路'] = roads[0]
+
+    if re.search('\d{1,4}弄', address):
+        formated_addr['弄'] = re.search('\d{1,4}弄', address).group()
+    if re.search('\d{1,5}号',address):
+        formated_addr['号'] = re.search('\d{1,4}号', address).group()
+
+    results = {}
+    results['header'] = list(formated_addr.keys())
+    results['address'] = list(formated_addr.values())
+    return results
 
 
 def get_entity_and_coordinate(address):
-    url = 'https://restapi.amap.com/v3/geocode/geo?address='+address+'&city=上海&output=\
-                                                          json&key=70b7dffc87bb3e31cec115148fb4cd81'
+    url = 'https://restapi.amap.com/v3/geocode/geo?address='+address+'&city=\
+           上海&output=json&key=70b7dffc87bb3e31cec115148fb4cd81'
     response = requests.get(url).content.decode()
     response = json.loads(response)
     
@@ -65,8 +62,8 @@ def get_entity_and_coordinate(address):
 
 def get_poi(coordinate, entity): 
     radius = '20'
-    url = 'https://restapi.amap.com/v3/geocode/regeo?output=json&location='+coordinate+'&radius='+radius+\
-                                                        '&key=70b7dffc87bb3e31cec115148fb4cd81&radius=10&extensions=all'
+    url = 'https://restapi.amap.com/v3/geocode/regeo?output=json&location='+coordinate+\
+          '&radius='+radius+'&key=70b7dffc87bb3e31cec115148fb4cd81&radius=10&extensions=all'
     response = requests.get(url).content.decode()
     response = json.loads(response)
     pois = response['regeocode']['pois']
@@ -96,5 +93,6 @@ def address_info(address):
 
 
 if __name__ == '__main__':
-    format_addr = addrFormat.addr_format('浦东新区汇豪路71弄冠郡酒店','大场镇')
-    print(format_addr)
+    result = addr_format('浦东新区高桥镇镇南村西浜头178号','大场镇')
+    print(result)
+
