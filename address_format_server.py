@@ -1,11 +1,11 @@
 import flask
 
-from address_format import addrFormat
+from address_format import addr_format
 
 def process(data):
     sentence = data.get('sentence')
     town = data.get('town')
-    response = addrFormat.addr_format(sentence, town)
+    response = addr_format(sentence, town)
 
     response['orderId'] = data.get('orderId')
     return response
